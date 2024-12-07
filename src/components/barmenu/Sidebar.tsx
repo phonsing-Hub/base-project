@@ -1,48 +1,19 @@
-import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
-import { Image } from "@nextui-org/react";
-import { Menu } from "antd";
-import { useTheme } from "next-themes";
+import { Badge, Image, Listbox, ListboxItem } from "@nextui-org/react";
 import { LuTicket } from "react-icons/lu";
 import { TbReport, TbLayoutDashboard } from "react-icons/tb";
-
-import type { MenuProps } from "antd";
 
 interface SidebarProps {
   isOpen: boolean;
 }
-type MenuItem = Required<MenuProps>["items"][number];
 
-const items: MenuItem[] = [
-  {
-    key: "grp",
-    label: "Menu",
-    type: "group",
-    children: [
-      { key: "/", label: "Dashboard", icon: <TbLayoutDashboard /> },
-      { key: "/ticket", label: "Ticket", icon: <LuTicket /> },
-      { key: "/report", label: "Report", icon: <TbReport /> },
-    ],
-  },
-];
+export const ListboxWrapper = ({ children }: { children: React.ReactNode }) => (
+  <div className="w-full max-w-[260px] px-1 py-2">{children}</div>
+);
 
 function Sidebar({ isOpen }: SidebarProps) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const [mounted, setMounted] = useState(false);
-  const { theme } = useTheme();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null;
-
-  const menuTheme: "light" | "dark" = theme === "dark" ? "dark" : "light";
-
-  const onClick: MenuProps["onClick"] = (e) => {
-    navigate(e.key);
-  };
 
   return (
     <main
@@ -61,15 +32,61 @@ function Sidebar({ isOpen }: SidebarProps) {
         </h2>
       </div>
       <br />
-      <Menu
-        theme={menuTheme}
-        onClick={onClick}
-        style={{ background: "transparent" }}
-        defaultSelectedKeys={[pathname]}
-        inlineCollapsed={!isOpen}
-        mode="inline"
-        items={items}
-      />
+      <ListboxWrapper>
+        <Listbox
+          aria-label="Actions"
+          color="default"
+          variant="light"
+          onAction={(key) => navigate(String(key))}
+        >
+          <ListboxItem
+            key="/"
+            className={pathname === "/" ? "bg-primary-100" : ""}
+          >
+            <div
+              className={`flex items-center gap-2 ${
+                isOpen ? "" : "justify-center"
+              }`}
+            >
+              <TbLayoutDashboard size={24} />
+              {isOpen && "Dashboard"}
+            </div>
+          </ListboxItem>
+          <ListboxItem
+            key="/ticket"
+            className={pathname === "/ticket" ? "bg-primary-100" : ""}
+          >
+            <div
+              className={`flex items-center gap-2 ${
+                isOpen ? "" : "justify-center"
+              }`}
+            >
+              <Badge
+                color="danger"
+                content={5}
+                isInvisible={false}
+                shape="circle"
+              >
+                <LuTicket size={24} />
+              </Badge>
+              {isOpen && "Ticket"}
+            </div>
+          </ListboxItem>
+          <ListboxItem
+            key="/report"
+            className={pathname === "/report" ? "bg-primary-100" : ""}
+          >
+            <div
+              className={`flex items-center gap-2 ${
+                isOpen ? "" : "justify-center"
+              }`}
+            >
+              <TbReport size={24} />
+              {isOpen && "Report"}
+            </div>
+          </ListboxItem>
+        </Listbox>
+      </ListboxWrapper>
     </main>
   );
 }
